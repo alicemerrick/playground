@@ -1,9 +1,10 @@
 //requires running local server
 
-var dataset;
-var n = 40;
-// var random = d3.randomNormal(68, .2);
-var data;
+var dataset, data;
+var n = 120
+    duration = 750,
+    now = new Date(Date.now() - duration);
+
 var curPos = n;
 
 d3.csv("sensor.csv", function(error, sensor) {
@@ -28,7 +29,7 @@ function populateData() {
 }
 
 var svg = d3.select("svg"),
-margin = {top: 20, right: 20, bottom: 20, left: 40},
+margin = {top: 0, right: 20, bottom: 20, left: 40},
 width = +svg.attr("width") - margin.left - margin.right,
 height = +svg.attr("height") - margin.top - margin.bottom,
 g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -57,8 +58,8 @@ function drawVis() {
     	.attr("height", height);
 
     timeX = d3.scaleTime()
-      .domain([new Date(dataset[curPos - n].time), new Date(dataset[curPos - 2].time)])
-      .range([0, width])
+      .domain([now - (n - 2) * duration, now - duration])
+      .range([0, width]);
 
     g.append("g")
     	.attr("class", "axis axis--x")
@@ -75,7 +76,7 @@ function drawVis() {
     	.datum(data)
     	.attr("class", "line")
     	.transition()
-      	.duration(1000)
+      	.duration(750)
       	.ease(d3.easeLinear)
       	.on("start", tick);
 
@@ -99,13 +100,15 @@ function tick() {
     	.transition()
     	.on("start", tick);
 
+      now = new Date();
+
   timeX = d3.scaleTime()
-      .domain([new Date(dataset[curPos - n + 1].time), new Date(dataset[curPos - 2].time)])
-      .range([0, width])
+      .domain([now - (n - 2) * duration, now - duration])
+      .range([0, width]);
 
   d3.select("g.axis--x")
     .transition()
-    .duration(1000)
+    .duration(750)
     .ease(d3.easeLinear)
     .call(d3.axisBottom(timeX))
     // .attr("transform", "translate(" + x(0) + "," + height + ")");
